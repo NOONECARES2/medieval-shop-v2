@@ -14,10 +14,89 @@ const promoCodes = {
 // Текущий примененный промокод
 let appliedPromo = null;
 
+// Флаг для предотвращения рекурсии
+let isUpdating = false;
+
+// Данные продуктов для отображения (должны совпадать с данными в java.js)
+const productsData = [
+    {
+        id: 1,
+        name: "«Лев Англии»",
+        description: "Черная футболка с золотым львом — символом отваги и королевской власти.",
+        price: 2499,
+        category: "coats",
+        emoji: "🦁",
+        color: "black"
+    },
+    {
+        id: 2,
+        name: "«Бог и моё право»",
+        description: "Классическая белая футболка с латинским девизом и стилизованным шрифтом.",
+        price: 2299,
+        category: "mottos",
+        emoji: "⚜️",
+        color: "white"
+    },
+    {
+        id: 3,
+        name: "«Дракон Уэльса»",
+        description: "Красный дракон на угольно-сером фоне. Хлопок премиум-качества.",
+        price: 2599,
+        category: "dragons",
+        emoji: "🐉",
+        color: "darkgray"
+    },
+    {
+        id: 4,
+        name: "«Стражи Замка»",
+        description: "Темно-синяя футболка с изображением величественного средневекового замка.",
+        price: 2399,
+        category: "castles",
+        emoji: "🏰",
+        color: "navy"
+    },
+    {
+        id: 5,
+        name: "«Герб Франции»",
+        description: "Королевские лилии на светло-голубом фоне. Символ французской монархии.",
+        price: 2499,
+        category: "coats",
+        emoji: "⚜️",
+        color: "lightblue"
+    },
+    {
+        id: 6,
+        name: "«Рыцарский девиз»",
+        description: "Черная футболка с девизом «За веру и честь!» на старинном щите.",
+        price: 2199,
+        category: "mottos",
+        emoji: "🛡️",
+        color: "black"
+    },
+    {
+        id: 7,
+        name: "«Дракон гор»",
+        description: "Зеленый дракон на черном фоне. Мифический страж горных вершин.",
+        price: 2699,
+        category: "dragons",
+        emoji: "🐲",
+        color: "black"
+    },
+    {
+        id: 8,
+        name: "«Башня Лондона»",
+        description: "Легендарная крепость на темно-сером фоне. История в каждом камне.",
+        price: 2499,
+        category: "castles",
+        emoji: "🏯",
+        color: "darkgray"
+    }
+];
+
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
-    // Обновить счетчик корзины
-    updateCartCount();
+    console.log('Cart page loaded');
+    console.log('Cart from localStorage:', cart);
     
     // Загрузить товары в корзину
     loadCartItems();
@@ -31,11 +110,15 @@ function loadCartItems() {
     const cartItemsContainer = document.getElementById('cartItems');
     const emptyCartMessage = document.getElementById('emptyCart');
     
+    console.log('Loading cart items...');
+    console.log('Cart items:', cart);
+    
     // Очистить контейнер
     cartItemsContainer.innerHTML = '';
     
     // Проверить, пуста ли корзина
     if (cart.length === 0) {
+        console.log('Cart is empty');
         emptyCartMessage.style.display = 'block';
         updateCartSummary();
         return;
@@ -46,6 +129,7 @@ function loadCartItems() {
     
     // Добавить каждый товар в корзину
     cart.forEach((item, index) => {
+        console.log('Adding item to cart:', item);
         const cartItem = createCartItemElement(item, index);
         cartItemsContainer.appendChild(cartItem);
     });
@@ -60,9 +144,12 @@ function createCartItemElement(item, index) {
     cartItem.className = 'cart-item';
     cartItem.dataset.index = index;
     
+    // Найти полные данные о продукте
+    const productData = productsData.find(p => p.id === item.id) || item;
+    
     // Определить цвет фона
     let bgColor;
-    switch(item.color) {
+    switch(productData.color) {
         case 'black': bgColor = '#000000'; break;
         case 'white': bgColor = '#ffffff'; break;
         case 'darkgray': bgColor = '#36454F'; break;
@@ -72,16 +159,16 @@ function createCartItemElement(item, index) {
     }
     
     // Определить цвет текста для контраста
-    const textColor = (item.color === 'black' || item.color === 'navy' || item.color === 'darkgray') ? '#ffffff' : '#000000';
+    const textColor = (productData.color === 'black' || productData.color === 'navy' || productData.color === 'darkgray') ? '#ffffff' : '#000000';
     
     cartItem.innerHTML = `
         <div class="cart-item-image" style="background-color: ${bgColor}; color: ${textColor};">
-            <div style="font-size: 40px;">${item.emoji || '👕'}</div>
+            <div style="font-size: 40px;">${productData.emoji || '👕'}</div>
         </div>
         <div class="cart-item-info">
-            <h4>${item.name}</h4>
-            <p>Историческая футболка премиум-качества</p>
-            <div class="cart-item-price">${item.price.toLocaleString('ru-RU')} ₽</div>
+            <h4>${productData.name}</h4>
+            <p>${productData.description || 'Историческая футболка премиум-качества'}</p>
+            <div class="cart-item-price">${productData.price.toLocaleString('ru-RU')} ₽</div>
         </div>
         <div class="cart-item-controls">
             <div class="quantity-controls">
@@ -100,8 +187,18 @@ function createCartItemElement(item, index) {
 
 // Обновить итоговую сумму
 function updateCartSummary() {
+    if (isUpdating) return;
+    isUpdating = true;
+    
+    console.log('Updating cart summary...');
+    
     // Рассчитать сумму товаров
-    const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+    const subtotal = cart.reduce((total, item) => {
+        const productData = productsData.find(p => p.id === item.id) || item;
+        return total + (productData.price * item.quantity);
+    }, 0);
+    
+    console.log('Subtotal:', subtotal);
     
     // Получить стоимость доставки
     const deliveryRadios = document.querySelectorAll('input[name="delivery"]');
@@ -132,79 +229,118 @@ function updateCartSummary() {
     const total = subtotal + shippingCost - discount;
     
     // Обновить элементы на странице
-    document.getElementById('totalItems').textContent = cart.reduce((total, item) => total + item.quantity, 0);
-    document.getElementById('subtotal').textContent = subtotal.toLocaleString('ru-RU') + ' ₽';
-    document.getElementById('shipping').textContent = shippingCost === 0 ? 'Бесплатно' : shippingCost.toLocaleString('ru-RU') + ' ₽';
-    document.getElementById('discount').textContent = discount === 0 ? '-0 ₽' : `-${discount.toLocaleString('ru-RU')} ₽`;
-    document.getElementById('totalAmount').textContent = total.toLocaleString('ru-RU') + ' ₽';
+    const totalItemsElement = document.getElementById('totalItems');
+    const subtotalElement = document.getElementById('subtotal');
+    const shippingElement = document.getElementById('shipping');
+    const discountElement = document.getElementById('discount');
+    const totalAmountElement = document.getElementById('totalAmount');
+    
+    if (totalItemsElement) {
+        totalItemsElement.textContent = cart.reduce((total, item) => total + item.quantity, 0);
+    }
+    
+    if (subtotalElement) {
+        subtotalElement.textContent = subtotal.toLocaleString('ru-RU') + ' ₽';
+    }
+    
+    if (shippingElement) {
+        shippingElement.textContent = shippingCost === 0 ? 'Бесплатно' : shippingCost.toLocaleString('ru-RU') + ' ₽';
+    }
+    
+    if (discountElement) {
+        discountElement.textContent = discount === 0 ? '-0 ₽' : `-${discount.toLocaleString('ru-RU')} ₽`;
+    }
+    
+    if (totalAmountElement) {
+        totalAmountElement.textContent = total.toLocaleString('ru-RU') + ' ₽';
+    }
     
     // Обновить кнопку оформления заказа
     const checkoutBtn = document.getElementById('checkoutBtn');
-    checkoutBtn.disabled = cart.length === 0;
-    checkoutBtn.innerHTML = cart.length === 0 
-        ? '<i class="fas fa-shopping-cart"></i> Корзина пуста'
-        : `<i class="fas fa-lock"></i> Оформить заказ (${total.toLocaleString('ru-RU')} ₽)`;
+    if (checkoutBtn) {
+        checkoutBtn.disabled = cart.length === 0;
+        checkoutBtn.innerHTML = cart.length === 0 
+            ? '<i class="fas fa-shopping-cart"></i> Корзина пуста'
+            : `<i class="fas fa-lock"></i> Оформить заказ (${total.toLocaleString('ru-RU')} ₽)`;
+    }
+    
+    isUpdating = false;
 }
 
 // Настроить обработчики событий
 function setupEventListeners() {
     // Увеличение/уменьшение количества товара (делегирование событий)
-    document.getElementById('cartItems').addEventListener('click', function(e) {
-        const target = e.target;
-        
-        // Увеличение количества
-        if (target.classList.contains('plus-btn')) {
-            const index = parseInt(target.dataset.index);
-            changeQuantity(index, 1);
-        }
-        
-        // Уменьшение количества
-        if (target.classList.contains('minus-btn')) {
-            const index = parseInt(target.dataset.index);
-            changeQuantity(index, -1);
-        }
-        
-        // Удаление товара
-        if (target.classList.contains('remove-item') || target.closest('.remove-item')) {
-            const removeBtn = target.classList.contains('remove-item') ? target : target.closest('.remove-item');
-            const index = parseInt(removeBtn.dataset.index);
-            removeFromCart(index);
-        }
-    });
-    
-    // Изменение количества через поле ввода
-    document.getElementById('cartItems').addEventListener('change', function(e) {
-        if (e.target.classList.contains('quantity-input')) {
-            const index = parseInt(e.target.dataset.index);
-            const newQuantity = parseInt(e.target.value);
+    const cartItemsContainer = document.getElementById('cartItems');
+    if (cartItemsContainer) {
+        cartItemsContainer.addEventListener('click', function(e) {
+            const target = e.target;
             
-            if (newQuantity > 0 && newQuantity <= 99) {
-                cart[index].quantity = newQuantity;
-                saveCart();
-                updateCartSummary();
-            } else {
-                // Вернуть предыдущее значение
-                e.target.value = cart[index].quantity;
+            // Увеличение количества
+            if (target.classList.contains('plus-btn')) {
+                const index = parseInt(target.dataset.index);
+                changeQuantity(index, 1);
             }
-        }
-    });
+            
+            // Уменьшение количества
+            if (target.classList.contains('minus-btn')) {
+                const index = parseInt(target.dataset.index);
+                changeQuantity(index, -1);
+            }
+            
+            // Удаление товара
+            if (target.classList.contains('remove-item') || target.closest('.remove-item')) {
+                const removeBtn = target.classList.contains('remove-item') ? target : target.closest('.remove-item');
+                const index = parseInt(removeBtn.dataset.index);
+                removeFromCart(index);
+            }
+        });
+        
+        // Изменение количества через поле ввода
+        cartItemsContainer.addEventListener('change', function(e) {
+            if (e.target.classList.contains('quantity-input')) {
+                const index = parseInt(e.target.dataset.index);
+                const newQuantity = parseInt(e.target.value);
+                
+                if (newQuantity > 0 && newQuantity <= 99) {
+                    cart[index].quantity = newQuantity;
+                    saveCart();
+                    updateCartSummary();
+                } else {
+                    // Вернуть предыдущее значение
+                    e.target.value = cart[index].quantity;
+                }
+            }
+        });
+    }
     
     // Изменение способа доставки
     document.querySelectorAll('input[name="delivery"]').forEach(radio => {
-        radio.addEventListener('change', updateCartSummary);
+        radio.addEventListener('change', function() {
+            updateCartSummary();
+        });
     });
     
     // Применение промокода
-    document.getElementById('applyPromo').addEventListener('click', applyPromoCode);
-    document.getElementById('promoInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            applyPromoCode();
-        }
-    });
+    const applyPromoBtn = document.getElementById('applyPromo');
+    if (applyPromoBtn) {
+        applyPromoBtn.addEventListener('click', applyPromoCode);
+    }
+    
+    const promoInput = document.getElementById('promoInput');
+    if (promoInput) {
+        promoInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                applyPromoCode();
+            }
+        });
+    }
     
     // Оформление заказа
-    document.getElementById('checkoutBtn').addEventListener('click', checkout);
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', checkout);
+    }
 }
 
 // Изменить количество товара
@@ -216,7 +352,7 @@ function changeQuantity(index, change) {
         removeFromCart(index);
     } else if (newQuantity > 99) {
         // Максимальное количество - 99
-        alert('Максимальное количество одного товара - 99 шт.');
+        showNotification('Максимальное количество одного товара - 99 шт.', 'error');
     } else {
         // Обновить количество
         cart[index].quantity = newQuantity;
@@ -255,6 +391,8 @@ function removeFromCart(index) {
 // Применить промокод
 function applyPromoCode() {
     const promoInput = document.getElementById('promoInput');
+    if (!promoInput) return;
+    
     const promoCode = promoInput.value.trim().toUpperCase();
     
     if (!promoCode) {
@@ -295,9 +433,15 @@ function checkout() {
 // Создать модальное окно оформления заказа
 function createCheckoutModal() {
     // Рассчитать итоговую сумму
-    const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-    const shippingCost = document.getElementById('shipping').textContent.includes('Бесплатно') ? 0 : 
-                         parseInt(document.getElementById('shipping').textContent.replace(/\D/g, ''));
+    const subtotal = cart.reduce((total, item) => {
+        const productData = productsData.find(p => p.id === item.id) || item;
+        return total + (productData.price * item.quantity);
+    }, 0);
+    
+    const shippingElement = document.getElementById('shipping');
+    const shippingCost = shippingElement && shippingElement.textContent.includes('Бесплатно') ? 0 : 
+                         shippingElement ? parseInt(shippingElement.textContent.replace(/\D/g, '')) || 0 : 0;
+    
     const discount = appliedPromo ? (() => {
         const promoValue = promoCodes[appliedPromo];
         return promoValue <= 100 ? subtotal * (promoValue / 100) : promoValue;
@@ -318,12 +462,15 @@ function createCheckoutModal() {
                 <div class="order-summary">
                     <h4>Ваш заказ</h4>
                     <div class="order-items">
-                        ${cart.map(item => `
-                            <div class="order-item">
-                                <span>${item.name} × ${item.quantity}</span>
-                                <span>${(item.price * item.quantity).toLocaleString('ru-RU')} ₽</span>
-                            </div>
-                        `).join('')}
+                        ${cart.map(item => {
+                            const productData = productsData.find(p => p.id === item.id) || item;
+                            return `
+                                <div class="order-item">
+                                    <span>${productData.name} × ${item.quantity}</span>
+                                    <span>${(productData.price * item.quantity).toLocaleString('ru-RU')} ₽</span>
+                                </div>
+                            `;
+                        }).join('')}
                     </div>
                     <div class="order-total">
                         <div class="total-row">
@@ -346,7 +493,7 @@ function createCheckoutModal() {
                     
                     <div class="form-group">
                         <label for="customerEmail"><i class="fas fa-envelope"></i> Email *</label>
-                        <input type="email" id="customerEmail" required placeholder="ivanov@example.com">
+                        <input type="email" id="customerEmail" required placeholder="ivanov@historystyle.ru">
                     </div>
                     
                     <div class="form-group">
@@ -549,12 +696,14 @@ function createCheckoutModal() {
     // Обработчики событий для модального окна
     modal.querySelector('.close-modal').addEventListener('click', () => {
         document.body.removeChild(modal);
+        document.head.removeChild(style);
     });
     
     // Закрытие при клике вне модального окна
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
             document.body.removeChild(modal);
+            document.head.removeChild(style);
         }
     });
     
@@ -574,6 +723,7 @@ function createCheckoutModal() {
         
         // Закрыть модальное окно
         document.body.removeChild(modal);
+        document.head.removeChild(style);
         
         // Обновить страницу корзины
         setTimeout(() => {
@@ -637,23 +787,29 @@ function showNotification(message, type = 'info') {
 
 // Сохранить корзину в localStorage
 function saveCart() {
-    localStorage.setItem('cart', JSON.stringify(cart));
+    try {
+        localStorage.setItem('cart', JSON.stringify(cart));
+        console.log('Cart saved to localStorage:', cart);
+    } catch (error) {
+        console.error('Error saving cart to localStorage:', error);
+    }
 }
 
 // Обновить счетчик корзины в шапке
 function updateCartCount() {
-    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-    const cartCountElements = document.querySelectorAll('.cart-count');
-    
-    cartCountElements.forEach(element => {
-        element.textContent = totalItems;
-    });
-    
-    // Также обновить в основном файле, если он загружен
-    if (typeof window.updateCartCount === 'function') {
-        window.updateCartCount();
+    try {
+        const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+        const cartCountElements = document.querySelectorAll('.cart-count');
+        
+        cartCountElements.forEach(element => {
+            if (element) {
+                element.textContent = totalItems;
+            }
+        });
+    } catch (error) {
+        console.error('Error updating cart count:', error);
     }
 }
 
-// Глобально доступные функции
-window.updateCartCount = updateCartCount;
+// Удалить вызов updateCartCount() из DOMContentLoaded
+// Он уже вызывается в loadCartItems() через updateCartSummary()
