@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Средневековый Мерч — Рыцарские Футболки</title>
+    <link rel="stylesheet" href="design.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=MedievalSharp&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Шапка и навигация -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html"> <!-- Исправлено -->
+                    <i class="fas fa-chess-knight"></i>
+                    <span>HERALDRY SHOP</span>
+                </a>
+                <p class="slogan">Снаряжение для современного рыцаря</p>
+            </div>
+            <nav class="nav">
+                <ul>
+                    <li><a href="#"><i class="fas fa-home"></i> Главная</a></li>
+                    <li><a href="#catalog"><i class="fas fa-tshirt"></i> Каталог</a></li>
+                    <li><a href="#about"><i class="fas fa-shield-alt"></i> О нас</a></li>
+                    <li><a href="#contacts"><i class="fas fa-envelope"></i> Контакты</a></li>
+                    <li><a href="#" class="cart-link"><i class="fas fa-shopping-cart"></i> Корзина <span class="cart-counter">0</span></a></li>
+                </ul>
+            </nav>
+            <button class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Герой-секция -->
+    <section class="hero">
+        <div class="container">
+            <h1>Облачись в историю</h1>
+            <p>Эксклюзивные футболки с гербами, девизами и символикой великих рыцарских орденов и замков. Качество, достойное королей.</p>
+            <a href="#catalog" class="btn">В каталог <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <!-- Основной контент - Каталог -->
+    <main class="container">
+        <section id="catalog" class="catalog">
+            <h2><i class="fas fa-helmet-battle"></i> Каталог доспехов для тела</h2>
+            <p class="section-subtitle">Выберите свой герб и цвета</p>
+
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">Все</button>
+                <button class="filter-btn" data-filter="coat-of-arms">С гербами</button>
+                <button class="filter-btn" data-filter="mottos">С девизами</button>
+                <button class="filter-btn" data-filter="dragons">Драконы</button>
+                <button class="filter-btn" data-filter="castles">Замки</button>
+            </div>
+
+            <div class="products-grid">
+                <!-- Товар 1 -->
+                <div class="product-card" data-category="coat-of-arms">
+                    <div class="product-img">
+                        <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="Футболка с львом">
+                        <span class="product-badge">Хит</span>
+                    </div>
+                    <div class="product-info">
+                        <h3>«Лев Англии»</h3>
+                        <p class="product-desc">Черная футболка с золотым львом — символом отваги и королевской власти.</p>
+                        <div class="product-price">2,499 <i class="fas fa-coins"></i></div>
+                        <button class="add-to-cart" data-id="1"><i class="fas fa-cart-plus"></i> В корзину</button>
+                    </div>
+                </div>
+
+                <!-- Товар 2 -->
+                <div class="product-card" data-category="mottos">
+                    <div class="product-img">
+                        <img src="https://images.unsplash.com/photo-1581655353564-df123a1eb820?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="Футболка с девизом">
+                        <span class="product-badge new">Новое</span>
+                    </div>
+                    <div class="product-info">
+                        <h3>«Бог и моё право»</h3>
+                        <p class="product-desc">Классическая белая футболка с латинским девизом и стилизованным шрифтом.</p>
+                        <div class="product-price">2,299 <i class="fas fa-coins"></i></div>
+                        <button class="add-to-cart" data-id="2"><i class="fas fa-cart-plus"></i> В корзину</button>
+                    </div>
+                </div>
+
+                <!-- Товар 3 -->
+                <div class="product-card" data-category="dragons">
+                    <div class="product-img">
+                        <img src="https://images.unsplash.com/photo-1574180045827-681f8a1a9622?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80" alt="Футболка с драконом">
+                    </div>
+                    <div class="product-info">
+                        <h3>«Дракон Уэльса»</h3>
+                        <p class="product-desc">Красный дракон на угольно-сером фоне. Хлопок премиум-качества.</p>
+                        <div class="product-price">2,599 <i class="fas fa-coins"></i></div>
+                        <button class="add-to-cart" data-id="3"><i class="fas fa-cart-plus"></i> В корзину</button>
+                    </div>
+                </div>
+
+                <!-- Товар 4 -->
+                <div class="product-card" data-category="castles">
+                    <div class="product-img">
+                        <img src="https://images.unsplash.com/photo-1590953896386-7c0a2b65b8a4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80" alt="Футболка с замком">
+                    </div>
+                    <div class="product-info">
+                        <h3>«Страж Замка»</h3>
+                        <p class="product-desc">Графичное изображение готического замка в сумеречных тонах.</p>
+                        <div class="product-price">2,399 <i class="fas fa-coins"></i></div>
+                        <button class="add-to-cart" data-id="4"><i class="fas fa-cart-plus"></i> В корзину</button>
+                    </div>
+                </div>
+
+                <!-- Товар 5 -->
+                <div class="product-card" data-category="coat-of-arms">
+                    <div class="product-img">
+                        <img src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=764&q=80" alt="Футболка с орлом">
+                    </div>
+                    <div class="product-info">
+                        <h3>«Имперский Орел»</h3>
+                        <p class="product-desc">Черный двуглавый орел на красном фоне. Мощь и величие.</p>
+                        <div class="product-price">2,699 <i class="fas fa-coins"></i></div>
+                        <button class="add-to-cart" data-id="5"><i class="fas fa-cart-plus"></i> В корзину</button>
+                    </div>
+                </div>
+
+                <!-- Товар 6 -->
+                <div class="product-card" data-category="mottos">
+                    <div class="product-img">
+                        <img src="https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" alt="Футболка с латинским текстом">
+                        <span class="product-badge">Хит</span>
+                    </div>
+                    <div class="product-info">
+                        <h3>«Memento Mori»</h3>
+                        <p class="product-desc">Помни о смерти. Черная футболка с латинской философской надписью.</p>
+                        <div class="product-price">2,199 <i class="fas fa-coins"></i></div>
+                        <button class="add-to-cart" data-id="6"><i class="fas fa-cart-plus"></i> В корзину</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- О нас -->
+        <section id="about" class="about">
+            <h2><i class="fas fa-scroll"></i> Наша история</h2>
+            <div class="about-content">
+                <img src="https://images.unsplash.com/photo-1588347818036-691d1f2e6e2b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="Средневековая мастерская">
+                <div class="about-text">
+                    <p>Мы — современные наследники традиций геральдики и ремесла. Наши дизайны создаются при участии историков и художников, чтобы каждый символ был аутентичным и наполнен смыслом.</p>
+                    <p>Мы используем только качественный хлопок и технологию печати, которая гарантирует стойкость рисунка даже после множества страж в битвах повседневности.</p>
+                    <blockquote>
+                        <i class="fas fa-quote-left"></i>
+                        Честь, отвага, верность — не просто слова на старой бумаге. Это принципы, которые мы носим на себе.
+                    </blockquote>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Футер -->
+    <footer id="contacts" class="footer">
+        <div class="container">
+            <div class="footer-columns">
+                <div class="footer-col">
+                    <h3><i class="fas fa-chess-knight"></i> HERALDRY SHOP</h3>
+                    <p>Создаем мерч с духом Средневековья с 2023 года.</p>
+                    <div class="social">
+                        <a href="#"><i class="fab fa-vk"></i></a>
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Контакты</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> г. Москва, ул. Кузнецкий Мост, д. 12</p>
+                    <p><i class="fas fa-phone"></i> +7 (999) 123-45-67</p>
+                    <p><i class="fas fa-envelope"></i> info@heraldry-shop.ru</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Дополнительно</h4>
+                    <ul>
+                        <li><a href="#">Доставка и оплата</a></li>
+                        <li><a href="#">Размерная сетка</a></li>
+                        <li><a href="#">Возврат и обмен</a></li>
+                        <li><a href="#">Политика конфиденциальности</a></li>
+                    </ul>
+                </div>
+            </div>
+            <p class="copyright">© 2023 HERALDRY SHOP. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <!-- Модальное окно корзины -->
+    <div id="cart-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2><i class="fas fa-shopping-cart"></i> Ваша корзина</h2>
+            <div class="cart-items">
+                <!-- Здесь будут товары корзины -->
+                <p class="empty-cart-message">Ваша корзина пуста</p>
+            </div>
+            <div class="cart-total">
+                <p>Итого: <span class="total-price">0</span> <i class="fas fa-coins"></i></p>
+                <button class="btn checkout-btn">Оформить заказ</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="java.js"></script>
+</body>
+</html>
