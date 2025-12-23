@@ -1,6 +1,7 @@
 // java.js - Главный JavaScript файл для index.html
 
 // Данные продуктов
+
 const products = [
     {
         id: 1,
@@ -8,6 +9,7 @@ const products = [
         description: "Черная футболка с золотым львом — символом отваги и королевской власти.",
         price: 2499,
         category: "coats",
+        categoryName: "С гербами",
         badge: "Хит продаж",
         color: "black",
         emoji: "🦁"
@@ -18,6 +20,7 @@ const products = [
         description: "Классическая белая футболка с латинским девизом и стилизованным шрифтом.",
         price: 2299,
         category: "mottos",
+        categoryName: "С девизами",
         badge: "",
         color: "white",
         emoji: "⚜️"
@@ -28,6 +31,7 @@ const products = [
         description: "Красный дракон на угольно-сером фоне. Хлопок премиум-качества.",
         price: 2599,
         category: "dragons",
+        categoryName: "Драконы",
         badge: "Новинка",
         color: "darkgray",
         emoji: "🐉"
@@ -38,6 +42,7 @@ const products = [
         description: "Темно-синяя футболка с изображением величественного средневекового замка.",
         price: 2399,
         category: "castles",
+        categoryName: "Замки",
         badge: "",
         color: "navy",
         emoji: "🏰"
@@ -48,6 +53,7 @@ const products = [
         description: "Королевские лилии на светло-голубом фоне. Символ французской монархии.",
         price: 2499,
         category: "coats",
+        categoryName: "С гербами",
         badge: "Хит продаж",
         color: "lightblue",
         emoji: "⚜️"
@@ -58,6 +64,7 @@ const products = [
         description: "Черная футболка с девизом «За веру и честь!» на старинном щите.",
         price: 2199,
         category: "mottos",
+        categoryName: "С девизами",
         badge: "",
         color: "black",
         emoji: "🛡️"
@@ -68,6 +75,7 @@ const products = [
         description: "Зеленый дракон на черном фоне. Мифический страж горных вершин.",
         price: 2699,
         category: "dragons",
+        categoryName: "Драконы",
         badge: "Новинка",
         color: "black",
         emoji: "🐲"
@@ -78,6 +86,7 @@ const products = [
         description: "Легендарная крепость на темно-сером фоне. История в каждом камне.",
         price: 2499,
         category: "castles",
+        categoryName: "Замки",
         badge: "",
         color: "darkgray",
         emoji: "🏯"
@@ -89,10 +98,14 @@ let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
-    // Обновить счетчик корзины
+   // Обновить счетчик корзины только если мы на главной странице
+if (document.querySelector('.products-grid')) {
     updateCartCount();
+}
+    // Загрузить таблицу продуктов
+    loadProductsTable();
     
-    // Загрузить продукты
+    // Загрузить продукты в сетку
     loadProducts();
     
     // Настроить фильтры категорий
@@ -107,6 +120,73 @@ document.addEventListener('DOMContentLoaded', function() {
     // Настроить навигацию по категориям в футере
     setupFooterCategoryLinks();
 });
+
+// Загрузить таблицу продуктов
+function loadProductsTable() {
+    const tableBody = document.getElementById('productsTableBody');
+    if (!tableBody) return;
+    
+    // Очистить таблицу
+    tableBody.innerHTML = '';
+    
+    // Добавить первые 4 продукта в таблицу (хиты продаж)
+    const featuredProducts = products.slice(0, 4);
+    
+    featuredProducts.forEach(product => {
+        const row = createTableRow(product);
+        tableBody.appendChild(row);
+    });
+}
+
+// Создать строку таблицы
+function createTableRow(product) {
+    const row = document.createElement('tr');
+    
+    // Определить цвет фона для эмодзи
+    let bgColor;
+    switch(product.color) {
+        case 'black': bgColor = '#000000'; break;
+        case 'white': bgColor = '#ffffff'; break;
+        case 'darkgray': bgColor = '#36454F'; break;
+        case 'navy': bgColor = '#1a1a2e'; break;
+        case 'lightblue': bgColor = '#add8e6'; break;
+        default: bgColor = '#f8f8f8';
+    }
+    
+    // Определить цвет текста для контраста
+    const textColor = (product.color === 'black' || product.color === 'navy' || product.color === 'darkgray') ? '#ffffff' : '#000000';
+    
+    // Класс категории для стилизации
+    const categoryClass = `category-${product.category}`;
+    
+    row.innerHTML = `
+        <td>
+            <div class="product-cell">
+                <div class="product-emoji" style="background-color: ${bgColor}; color: ${textColor}">
+                    ${product.emoji}
+                </div>
+                <div class="product-info">
+                    <div class="product-name">${product.name}</div>
+                    ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
+                </div>
+            </div>
+        </td>
+        <td>${product.description}</td>
+        <td><span class="category-cell ${categoryClass}">${product.categoryName}</span></td>
+        <td class="price-cell">${product.price.toLocaleString('ru-RU')} ₽</td>
+        <td class="action-cell">
+            <button class="btn-table" data-id="${product.id}">В корзину</button>
+        </td>
+    `;
+    
+    // Добавить обработчик события для кнопки добавления в корзину
+    const addToCartBtn = row.querySelector('.btn-table');
+    addToCartBtn.addEventListener('click', function() {
+        addToCart(product);
+    });
+    
+    return row;
+}
 
 // Загрузить продукты в сетку
 function loadProducts(filterCategory = 'all') {
